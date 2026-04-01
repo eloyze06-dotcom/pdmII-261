@@ -1,1 +1,64 @@
+class Dependente {
+  String nome;
+  int idade;
 
+  Dependente(this.nome, this.idade);
+
+  Map<String, dynamic> toJson() {
+    return {
+      "nome": nome,
+      "idade": idade
+    };
+  }
+}
+
+class Funcionario {
+  String nome;
+  double salario;
+  List<Dependente> dependentes = [];
+
+  Funcionario(this.nome, this.salario);
+
+  Map<String, dynamic> toJson() {
+    return {
+      "nome": nome,
+      "salario": salario,
+      "dependentes": dependentes.map((d) => d.toJson()).toList()
+    };
+  }
+}
+
+class EquipeProjeto {
+  String nomeProjeto;
+  List<Funcionario> funcionarios;
+
+  EquipeProjeto(this.nomeProjeto, this.funcionarios);
+
+  Map<String, dynamic> toJson() {
+    return {
+      "nomeProjeto": nomeProjeto,
+      "funcionarios": funcionarios.map((f) => f.toJson()).toList()
+    };
+  }
+}
+
+void main() {
+  
+  Dependente d1 = Dependente("Ana Paula", 12);
+  Dependente d2 = Dependente("Esther", 8);
+  Dependente d3 = Dependente("Bianca", 15);
+
+  Funcionario f1 = Funcionario("Nicolas", 3000);
+  Funcionario f2 = Funcionario("Milena", 4500);
+
+  f1.dependentes.add(d1);
+  f1.dependentes.add(d2);
+
+  f2.dependentes.add(d3);
+
+  List<Funcionario> funcionarios = [f1, f2];
+
+  EquipeProjeto equipe = EquipeProjeto("Projeto X", funcionarios);
+  
+  print(equipe.toJson());
+}
