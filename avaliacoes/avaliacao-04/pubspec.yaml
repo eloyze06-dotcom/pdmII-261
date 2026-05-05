@@ -1,0 +1,10 @@
+name: iot_temperature_monitor
+description: Sistema IoT de monitoramento de temperatura com sockets
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.19.0 <4.0.0'
+
+dependencies:
+  # Nenhuma dependência externa necessária

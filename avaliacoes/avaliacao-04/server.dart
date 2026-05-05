@@ -1,29 +1,39 @@
 import 'dart:io';
 import 'dart:convert';
 
-Future<void> main() async {
-  const host = '127.0.0.1';
-  const port = 4040;
 
-  final server = await ServerSocket.bind(host, port);
-  print('Servidor rodando em $host:$port');
+void main() async {
+  final server = await ServerSocket.bind(InternetAddress.anyIPv4, 8080);
+  print('🚀 Servidor IoT iniciado na porta 8080');
+  print('📡 Aguardando conexões do dispositivo IoT...\n');
 
-  await for (Socket client in server) {
-    print('Cliente conectado: ${client.remoteAddress.address}:${client.remotePort}');
-
-    client.listen(
-      (data) {
-        final message = utf8.decode(data).trim();
-        print('Temperatura recebida: $message °C');
-      },
-      onDone: () {
-        print('Cliente desconectado');
-        client.close();
-      },
-      onError: (error) {
-        print('Erro: $error');
-        client.close();
-      },
-    );
-  }
+  server.listen((Socket client) {
+    handleClient(client);
+  });
+}
+void handleClient(Socket client) {
+  client
+      .cast<List<int>>()   // 👈 COLOCA AQUI
+      .transform(utf8.decoder)
+      .transform(const LineSplitter())
+      .listen((data) {
+        try {
+          final tempData = jsonDecode(data);
+          print('🌡️  TEMPERATURA RECEBIDA: ${tempData['temperatura']}°C');
+          print('⏰  Horário: ${DateTime.now().toString().substring(0, 19)}');
+          print('📍 Dispositivo: ${tempData['dispositivo']}');
+          print('---');
+          
+          // Envia confirmação de recebimento
+          client.write('OK');
+        } catch (e) {
+          print('❌ Erro ao processar dados: $e');
+        }
+      }, onError: (error) {
+        print('❌ Erro na conexão: $error');
+        client.destroy();
+      }, onDone: () {
+        print('🔌 Conexão fechada');
+        client.destroy();
+      });
 }
